@@ -3,5 +3,5 @@ from . import views
 
 urlpatterns = [
     url(r'^skill/list/$', views.skill_list, name='skill_list'),
-    url(r'^skill/relation/(?P<skillName>\d+)/$', views.skill_relation, name='skill_relation'),
+    url(r'^skill/relation/$', views.skill_relation, name='skill_relation'),
 ]

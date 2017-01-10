@@ -7,12 +7,47 @@
     <meta charset="utf-8">
     <title>Vue.js grid component example</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc=" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <!-- <script src="{% static 'js/utill.js' %}" charset="utf-8"></script> -->
 </head>
 
 <script type="text/javascript">
+
+  /*function csrfSafeMethod(method) {
+      // these HTTP methods do not require CSRF protection
+      return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+  }*/
+
   function getRelations(thisObj){
-    //console.log($(thisObj).text());
+    //var csrftoken = getCookie('csrftoken');
+    $.ajax({
+      url: "{% url 'skill_relation' %}",
+      data: "skill_name=" + $(thisObj).text(),
+      type: "post",
+      dataType: "json",
+      headers: {'X-CSRFToken': '{{ csrf_token }}'}, // csrf_token값을 설정해야만 통신할 수 있음.
+      // beforeSend: function(xhr, settings) {
+      //     if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+      //         xhr.setRequestHeader("X-CSRFToken", csrftoken);
+      //     }
+      // },
+      success: function(data){
+        var skill_name = "";
+        $.each(data, function(key, value){
+          skill_name += value.skill_name;
+          if(key != data.length-1){
+            skill_name += ", ";
+          }
+        });
+
+        $(thisObj).next().next().text(skill_name);
+      },
+      error: function(jqXHR, textStatus, errorThrown){
+        console.log(jqXHR);
+        console.log(textStatus);
+        console.log(errorThrown);
+      }
+    });
   }
 </script>
 
@@ -20,8 +55,9 @@
     <table>
         <thead>
             <tr>
-                <th class="">Name<span class="arrow asc"></span></th>
-                <th class="">Power<span class="arrow asc"></span></th>
+                <th class="">기술명<span class="arrow asc"></span></th>
+                <th class="">업급횟수<span class="arrow asc"></span></th>
+                <th class="">관련기술<span class="arrow asc"></span></th>
             </tr>
         </thead>
         <tbody>
