@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'blog',
     'offerstate',
+    'debug_toolbar'
 )
 
 MIDDLEWARE_CLASSES = (
