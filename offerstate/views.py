@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from django.db.models import Count
-from django.core import serializers
+#from django.core import serializers
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import JsonResponse, HttpResponse
-
+from django.http import HttpResponse
 from django.db import connections
-from django.db import connection
+#from django.db import connection
+from datetime import datetime
+from django.utils.dateformat import DateFormat
 
 import json
 
@@ -13,9 +14,25 @@ from .models import OfferSkills
 # Create your views here.
 
 def skill_list(request):
-    skill_list = OfferSkills.objects.using("mysql").all().values('skill_name').annotate(total=Count('skill_name')).order_by('-total')
-    paginator = Paginator(skill_list, 20) # 페이지당 20개씩 출력
+    #skill_list = OfferSkills.objects.using("mysql").all().values('skill_name').annotate(total=Count('skill_name')).order_by('-total')
+    #paginator = Paginator(skill_list, 20)
 
+    date = request.GET.get('date')
+    if date == None:
+        date = DateFormat(datetime.now()).format('Ymd')
+    sql_params = [date]
+    print(date)
+    sql = """
+            select skill_name, count(skill_name) total
+            from offer_skills
+            where DATE_FORMAT(created, "%%Y%%m%%d") = %s
+            group by skill_name
+            order by total desc
+        """
+    cursor = connections['mysql'].cursor()
+    cursor.execute(sql, sql_params)
+
+    paginator = Paginator(dictfetchall(cursor), 20) # 페이지당 20개씩 출력
     page = request.GET.get('page')
     try:
         contacts = paginator.page(page)
